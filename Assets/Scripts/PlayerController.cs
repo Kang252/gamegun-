@@ -3,43 +3,45 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public Transform groundCheck;
-    public LayerMask groundLayer;
     
     private Rigidbody2D rb;
     private Animator anim;
-    private bool isGrounded;
     private bool facingRight = true;
+    private Vector2 movement;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>(); // Cần tạo Animator Controller cho Mad Doctor
+        anim = GetComponent<Animator>(); 
+        
+        // Tắt trọng lực để player không bị kéo xuống màn hình
+        if (rb != null)
+        {
+            rb.gravityScale = 0f;
+        }
     }
 
     void Update()
     {
-        // Kiểm tra chạm đất
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        // Lấy Input từ các phím WASD hoặc Mũi tên
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
 
-        // Di chuyển trái phải
-        float moveInput = Input.GetAxisRaw("Horizontal");
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        // Xử lý góc quay mặt của player
+        if (movement.x > 0 && !facingRight) Flip();
+        else if (movement.x < 0 && facingRight) Flip();
 
-        // Xử lý quay mặt
-        if (moveInput > 0 && !facingRight) Flip();
-        else if (moveInput < 0 && facingRight) Flip();
-
-        // Xử lý nhảy
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Cập nhật giá trị "Speed" cho Animation (lớn hơn 0 khi di chuyển)
+        if (anim != null)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            anim.SetFloat("Speed", movement.sqrMagnitude);
         }
+    }
 
-        // Cập nhật Animation
-        anim.SetFloat("Speed", Mathf.Abs(moveInput));
-        anim.SetBool("IsGrounded", isGrounded);
+    void FixedUpdate() 
+    {
+        // Di chuyển bằng linearVelocity (nhân thêm normalized để đi chéo không bị nhanh gấp đôi)
+        rb.linearVelocity = movement.normalized * moveSpeed;
     }
 
     void Flip()
