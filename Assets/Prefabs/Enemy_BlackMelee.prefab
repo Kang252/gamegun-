@@ -203,14 +203,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   health: 30
-  moveSpeed: 4
-  scoreValue: 1
+  moveSpeed: 3.5
+  attackDamage: 15
+  scoreValue: 10
   type: 0
-  stopDistance: 4
+  stopDistance: 12
+  attackRange: 1.5
   enemyBulletPrefab: {fileID: 0}
   muzzleFlashPrefab: {fileID: 0}
   firePoint: {fileID: 0}
-  fireRate: 2
+  fireRate: 1.0
   healthPickupPrefab: {fileID: 0}
-  dropChance: 0.5
+  dropChance: 0.3
   deathEffect: {fileID: 0}
