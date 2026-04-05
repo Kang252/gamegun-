@@ -112,21 +112,26 @@ public class PlayerShooting : MonoBehaviour
         beamLine.SetPosition(0, firePoint.position);
         beamLine.SetPosition(1, beamEnd);
 
-        // Raycast logic to damage enemies
+        // CircleCast để beam có độ dày, dễ trúng kẻ địch hơn
         if (Time.time >= nextFireTime)
         {
-            RaycastHit2D[] hits = Physics2D.RaycastAll(firePoint.position, Vector2.right * facingDirection, beamLength);
-            foreach(var hit in hits)
+            // Radius 0.8f = độ dày tia sét, trùng với visual beam width
+            RaycastHit2D[] hits = Physics2D.CircleCastAll(firePoint.position, 0.8f, Vector2.right * facingDirection, beamLength);
+            foreach (var hit in hits)
             {
+                // Bỏ qua va chạm với chính Player
+                if (hit.collider.CompareTag("Player")) continue;
+
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(10, hit.point); // Deal constant damage
-                    if (currentWeapon.impactEffect != null) 
+                    enemy.TakeDamage(10, hit.point);
+                    enemy.TriggerElectricStun(2f); // Gây hiệu ứng điện giật (nhấp nháy cyan)
+                    if (currentWeapon.impactEffect != null)
                         Instantiate(currentWeapon.impactEffect, hit.point, Quaternion.identity);
                 }
             }
-            nextFireTime = Time.time + currentWeapon.fireRate; // Rate of tick damage
+            nextFireTime = Time.time + currentWeapon.fireRate;
         }
     }
 

@@ -205,14 +205,14 @@ MonoBehaviour:
   health: 50
   moveSpeed: 2.5
   attackDamage: 25
-  scoreValue: 15
+  scoreValue: 10
   type: 1
   stopDistance: 12
-  attackRange: 1.5
+  attackRange: 2.5
   enemyBulletPrefab: {fileID: 0}
   muzzleFlashPrefab: {fileID: 0}
   firePoint: {fileID: 0}
   fireRate: 1.5
   healthPickupPrefab: {fileID: 0}
-  dropChance: 0.35
+  dropChance: 0.3
   deathEffect: {fileID: 0}
