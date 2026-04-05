@@ -4,7 +4,7 @@ public class Enemy : MonoBehaviour
 {
     public int health = 30;
     public float moveSpeed = 3f;
-    public int scoreValue = 1; // Điểm KILLS nhận được
+    public int scoreValue = 1;
 
     public enum EnemyType { NormalMelee, Defender, HeavyMelee, Ranged }
 
@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour
     public EnemyType type;
     public float stopDistance = 4f; 
     public GameObject enemyBulletPrefab;
-    public GameObject muzzleFlashPrefab; // Thêm tia lửa khi kẻ địch nhả đạn
+    public GameObject muzzleFlashPrefab; 
     public Transform firePoint;
     public float fireRate = 2f;
     private float nextFireTime;
@@ -32,7 +32,6 @@ public class Enemy : MonoBehaviour
     {
         anim = GetComponent<Animator>();
 
-        // Tự động tìm nhân vật chính mang Tag "Player" để đuổi theo
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -42,14 +41,12 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        // Rượt đuổi liên tục
         if (!isDead && player != null)
         {
             float distance = Vector2.Distance(transform.position, player.position);
 
             if (type == EnemyType.Ranged && distance <= stopDistance)
             {
-                // Đứng lại sấy súng
                 if (Time.time >= nextFireTime)
                 {
                     ShootPlayer();
@@ -58,15 +55,14 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                // Đi tiếp
                 transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
             }
 
-            // Đảo ngược lại logic Flip: vì Sprite Gốc quay mặt bên Trái
+            // Xử lý quay mặt (Sprite gốc quay trái)
             if (player.position.x > transform.position.x)
-                transform.localScale = new Vector3(-1, 1, 1); // Trái ngược lại: -1 là quay sang Phải
+                transform.localScale = new Vector3(-1, 1, 1); // Quay phải
             else if (player.position.x < transform.position.x)
-                transform.localScale = new Vector3(1, 1, 1);  // 1 là quay sang Trái
+                transform.localScale = new Vector3(1, 1, 1);  // Quay trái
         }
     }
 
@@ -74,15 +70,15 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return;
 
-        // --- 100% accurately: Defender Shield Logic ---
-        // Nếu là Quái Khiên Vàng (Defender), chỉ trúng từ phía sau
+        // Đã sửa logic chặn đạn của quái Defender
         if (type == EnemyType.Defender)
         {
             float directionToHit = hitSource.x - transform.position.x;
-            float facing = transform.localScale.x; // 1 là phải, -1 là trái
+            float facing = transform.localScale.x; 
 
-            // Nếu hướng đạn bay đến trùng với hướng mặt đang nhìn => Đang bắn vào khiên
-            if ((facing > 0 && directionToHit > 0) || (facing < 0 && directionToHit < 0))
+            // Nếu quái quay TRÁI (facing > 0) và đạn từ TRÁI bay tới (directionToHit < 0)
+            // Hoặc quái quay PHẢI (facing < 0) và đạn từ PHẢI bay tới (directionToHit > 0)
+            if ((facing > 0 && directionToHit < 0) || (facing < 0 && directionToHit > 0))
             {
                 Debug.Log("KENG! Đạn trúng khiên, không gây sát thương!");
                 return; 
@@ -103,13 +99,11 @@ public class Enemy : MonoBehaviour
     {
         isDead = true;
         
-        // Báo cho máy chủ tính điểm (GameManager) cộng KILLS
         if (GameManager.Instance != null)
         {
             GameManager.Instance.AddScore(scoreValue);
         }
 
-        // Rớt item máu theo tỉ lệ
         if (healthPickupPrefab != null && Random.value <= dropChance)
         {
             Instantiate(healthPickupPrefab, transform.position, Quaternion.identity);
@@ -122,7 +116,6 @@ public class Enemy : MonoBehaviour
         
         if (deathEffect != null) Instantiate(deathEffect, transform.position, Quaternion.identity);
         
-        // Hủy quái nhanh chóng
         Destroy(gameObject, 0.1f); 
     }
 
@@ -130,12 +123,13 @@ public class Enemy : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            // Cố gắng lấy PlayerHealth (nếu bạn có script này gắn trên Player)
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(10f); // Gây 10 sát thương
-                if (anim != null) anim.Play("Hit"); // Act attack animation
-                Die(); // Quái tự hủy sau khi cắn
+                playerHealth.TakeDamage(10f); 
+                if (anim != null) anim.Play("Hit"); 
+                Die(); 
             }
         }
     }
@@ -145,13 +139,11 @@ public class Enemy : MonoBehaviour
         if (enemyBulletPrefab != null)
         {
             Vector3 firePos = firePoint != null ? firePoint.position : transform.position;
-            // Tính hướng bắn về phía Player
             Vector2 direction = (player.position - firePos).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             
             GameObject bullet = Instantiate(enemyBulletPrefab, firePos, Quaternion.Euler(0, 0, angle));
             
-            // Xả tia lửa chớp nòng cho kẻ địch đúng tại đầu súng
             if (muzzleFlashPrefab != null)
             {
                 int facingDirection = transform.localScale.x > 0 ? 1 : -1;
@@ -160,7 +152,7 @@ public class Enemy : MonoBehaviour
                 Destroy(flash, 0.6f);
             }
 
-            if (anim != null) anim.Play("Idle"); // Shooter enemies often just stand still to shoot
+            if (anim != null) anim.Play("Idle");
         }
     }
 }

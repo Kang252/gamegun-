@@ -240,7 +240,7 @@ MonoBehaviour:
   type: 3
   stopDistance: 5
   enemyBulletPrefab: {fileID: 1493691223624398256, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
-  muzzleFlashPrefab: {fileID: 6882730733629922489, guid: a72aba0d82802894a9e694852f77402e, type: 3}
+  muzzleFlashPrefab: {fileID: 3016085372199729693, guid: a72aba0d82802894a9e694852f77402e, type: 3}
   firePoint: {fileID: 1747935641044351509}
   fireRate: 2
   healthPickupPrefab: {fileID: 0}
