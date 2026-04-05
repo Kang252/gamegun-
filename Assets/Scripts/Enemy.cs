@@ -6,7 +6,7 @@ public class Enemy : MonoBehaviour
     public float health = 30f;
     public float moveSpeed = 3f;
     public float attackDamage = 10f;
-    public int scoreValue = 10;
+    public int scoreValue = 1;
 
     public enum EnemyType { NormalMelee, Defender, HeavyMelee, Ranged }
 
@@ -30,11 +30,12 @@ public class Enemy : MonoBehaviour
     private float nextAttackTime;
 
     [Header("Rớt Máu")]
-    public GameObject healthPickupPrefab;
+    public GameObject[] healthPickupPrefabs;
     [Range(0f, 1f)]
-    public float dropChance = 0.3f;
+    public float dropChance = 0.2f; // Tỉ lệ 1/5 rớt bình máu
 
     public GameObject deathEffect;
+    public GameObject hitEffectPrefab;
 
     // --- Internal state ---
     private Animator anim;
@@ -44,9 +45,11 @@ public class Enemy : MonoBehaviour
     private bool isStunned = false;
     private float stunEndTime = 0f;
     private string currentAnim = "";
+    private float lockAnimationUntil = 0f;
 
     // --- Get Electric visual flash ---
     private float electricFlashTimer = 0f;
+    private Vector3 originalScale;
     private Color originalColor;
     private static readonly Color ElectricColor = new Color(0.3f, 0.8f, 1f); // cyan-blue
 
@@ -55,6 +58,8 @@ public class Enemy : MonoBehaviour
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null) originalColor = spriteRenderer.color;
+
+        originalScale = transform.localScale;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -71,29 +76,36 @@ public class Enemy : MonoBehaviour
             if (Time.time >= stunEndTime)
             {
                 isStunned = false;
-                // Trả lại màu gốc khi hết stun
-                if (spriteRenderer != null) spriteRenderer.color = originalColor;
+                if (spriteRenderer != null) 
+                {
+                    spriteRenderer.color = originalColor;
+                    spriteRenderer.enabled = true; 
+                }
             }
             else
             {
-                // Nhấp nháy màu electric
-                electricFlashTimer += Time.deltaTime;
-                if (spriteRenderer != null)
-                    spriteRenderer.color = (Mathf.Sin(electricFlashTimer * 20f) > 0) ? ElectricColor : originalColor;
+                // Ép dừng chuyển động khi đang choáng
+                Rigidbody2D rb = GetComponent<Rigidbody2D>();
+                if (rb != null) rb.linearVelocity = Vector2.zero;
 
-                // Phát animation "Get Hit" (nếu có "Get Electric" thay bằng tên đúng trong Animator)
-                PlayAnim("Get Hit");
-                return; // Ngừng mọi hoạt động khi bị choáng
+                // Để Animator xử lý việc hiển thị Skeleton, chỉ cần giữ spriteRenderer bật
+                if (spriteRenderer != null) spriteRenderer.enabled = true;
+
+                PlayAnim("Get Electric", 0.5f);
+                return; 
             }
         }
 
+        // Nếu đang trong thời gian khóa animation (đang đánh), dừng di chuyển & các anim khác
+        if (Time.time < lockAnimationUntil) return;
+
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // --- Xử lý hướng nhìn ---
+        // --- Xử lý hướng nhìn (Dựa trên baseScale) ---
         if (player.position.x > transform.position.x)
-            transform.localScale = new Vector3(-1, 1, 1); // Quay phải
+            transform.localScale = new Vector3(-originalScale.x, originalScale.y, originalScale.z); // Quay phải
         else if (player.position.x < transform.position.x)
-            transform.localScale = new Vector3(1, 1, 1);  // Quay trái
+            transform.localScale = new Vector3(originalScale.x, originalScale.y, originalScale.z);  // Quay trái
 
         // === KẺ ĐỊCH BẮN XA (Ranged) ===
         if (type == EnemyType.Ranged)
@@ -103,7 +115,7 @@ public class Enemy : MonoBehaviour
                 PlayAnim("Idle");
                 if (Time.time >= nextFireTime)
                 {
-                    ShootStraight(); // Bắn thẳng theo hướng nhìn
+                    ShootStraight();
                     nextFireTime = Time.time + fireRate;
                 }
             }
@@ -135,15 +147,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void PlayAnim(string animName)
+    void PlayAnim(string animName, float lockDuration = 0f)
     {
         if (anim != null && currentAnim != animName)
         {
-            // Kiểm tra xem state có tồn tại không trước khi Play
-            if (HasState(animName))
+            currentAnim = animName;
+            anim.Play(animName);
+            
+            if (lockDuration > 0)
             {
-                currentAnim = animName;
-                anim.Play(animName);
+                lockAnimationUntil = Time.time + lockDuration;
             }
         }
     }
@@ -181,7 +194,18 @@ public class Enemy : MonoBehaviour
 
         health -= damage;
         currentAnim = "";
-        if (anim != null) anim.Play("Hit");
+        
+        // Luôn thử chạy "Get Hit" trước, nếu không có mới chạy "Hit"
+        if (anim != null) 
+        {
+            anim.Play("Get Hit");
+        }
+        
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        }
+
         Invoke(nameof(ResetAnimState), 0.35f);
 
         if (health <= 0) Die();
@@ -204,6 +228,11 @@ public class Enemy : MonoBehaviour
         stunEndTime = Time.time + duration;
         electricFlashTimer = 0f;
         currentAnim = "";
+        
+        // Dừng lực đẩy vật lý ngay khi bắt đầu choáng
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+        
         Debug.Log($"[{gameObject.name}] bị điện giật trong {duration}s!");
     }
 
@@ -215,8 +244,14 @@ public class Enemy : MonoBehaviour
         if (GameManager.Instance != null)
             GameManager.Instance.AddScore(scoreValue);
 
-        if (healthPickupPrefab != null && Random.value <= dropChance)
-            Instantiate(healthPickupPrefab, transform.position, Quaternion.identity);
+        if (healthPickupPrefabs != null && healthPickupPrefabs.Length > 0 && Random.value <= dropChance)
+        {
+            int rndIndex = Random.Range(0, healthPickupPrefabs.Length);
+            if (healthPickupPrefabs[rndIndex] != null)
+            {
+                Instantiate(healthPickupPrefabs[rndIndex], transform.position, Quaternion.identity);
+            }
+        }
 
         // Trả lại màu gốc khi chết
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
@@ -239,36 +274,36 @@ public class Enemy : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (isDead || isStunned) return;
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Gây 20% sát thương va chạm (nhỏ, chủ yếu dùng AttackPlayer)
-            PlayerHealth ph = collision.gameObject.GetComponent<PlayerHealth>();
-            if (ph != null) ph.TakeDamage(attackDamage * 0.2f);
-        }
+        // Đã xóa sát thương va chạm vật lý để tránh trừ máu sớm
     }
 
     // ===== ATTACK =====
 
     void AttackPlayer()
     {
-        // Animation đánh (dùng "Hit" vì controller chưa có state "Attack" riêng)
-        currentAnim = "";
-        if (anim != null) anim.Play("Hit");
-        Invoke(nameof(ResetAnimState), 0.35f);
+        // Khóa animation để chạy đòn đánh - Tăng lên 0.8s để chạy hết hoạt ảnh
+        PlayAnim("Hit", 0.8f);
+        
+        // Trì hoãn việc trừ máu 0.4s để khớp với lúc vung tay trong animation
+        Invoke(nameof(DealMeleeDamage), 0.4f);
+    }
 
-        // Tìm PlayerHealth trực tiếp trong scene nếu player ref không có component
-        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        if (playerHealth == null)
-            playerHealth = player.GetComponentInChildren<PlayerHealth>();
+    void DealMeleeDamage()
+    {
+        if (isDead || isStunned || player == null) return;
 
-        if (playerHealth != null)
+        float distance = Vector2.Distance(transform.position, player.position);
+        // Tầm đánh thực tế hơi rộng hơn attackRange một chút để bù cho độ trễ
+        if (distance <= attackRange + 1.0f) 
         {
-            playerHealth.TakeDamage(attackDamage);
-            Debug.Log($"[{gameObject.name}] đánh Player: -{attackDamage} HP");
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] Không tìm thấy PlayerHealth trên Player!");
+            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+            if (playerHealth == null) playerHealth = player.GetComponentInChildren<PlayerHealth>();
+            
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(attackDamage);
+                Debug.Log($"[{gameObject.name}] thực sự đánh Player: -{attackDamage} HP");
+            }
         }
     }
 
@@ -281,13 +316,13 @@ public class Enemy : MonoBehaviour
         // Lấy vị trí bắn
         Vector3 firePos = firePoint != null ? firePoint.position : transform.position;
 
-        // Hướng bắn: chỉ bay ngang theo hướng kẻ địch đang nhìn
-        // localScale.x < 0 => đang quay phải => bắn sang phải
-        // localScale.x > 0 => đang quay trái => bắn sang trái
-        int facingDir = transform.localScale.x < 0 ? 1 : -1;
-        float angle = facingDir > 0 ? 0f : 180f; // 0° = phải, 180° = trái
+        // Hướng bắn: 
+        // localScale.x < 0 => đang quay phải => góc 0
+        // localScale.x > 0 => đang quay trái => góc 180
+        float angle = transform.localScale.x < 0 ? 0f : 180f; 
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
-        GameObject bulletObj = Instantiate(enemyBulletPrefab, firePos, Quaternion.Euler(0, 0, angle));
+        GameObject bulletObj = Instantiate(enemyBulletPrefab, firePos, rotation);
 
         // Truyền damage cho EnemyBullet
         EnemyBullet eb = bulletObj.GetComponent<EnemyBullet>();
@@ -295,16 +330,11 @@ public class Enemy : MonoBehaviour
         {
             eb.Init(attackDamage, gameObject);
         }
-        else
-        {
-            Bullet old = bulletObj.GetComponent<Bullet>();
-            if (old != null) old.damage = (int)attackDamage;
-        }
 
         // Muzzle flash
         if (muzzleFlashPrefab != null)
         {
-            GameObject flash = Instantiate(muzzleFlashPrefab, firePos, Quaternion.Euler(0, 0, angle), transform);
+            GameObject flash = Instantiate(muzzleFlashPrefab, firePos, rotation, transform);
             Destroy(flash, 0.15f);
         }
     }

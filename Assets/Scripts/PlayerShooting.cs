@@ -31,6 +31,7 @@ public class PlayerShooting : MonoBehaviour
     [Header("Cài đặt UI")]
     public Transform firePoint;     
     public Image weaponUI;          
+    public Rect weaponCropRect = new Rect(250, 100, 240, 240); // Toa do va kich thuoc vung sung de cat
     
     private float nextFireTime = 0f;
     private AudioSource audioSource;
@@ -38,6 +39,12 @@ public class PlayerShooting : MonoBehaviour
     
     private GameObject activeBeam = null;
     private LineRenderer beamLine = null;
+    
+    [Header("Laser Animation")]
+    public Sprite[] laserSprites; // Các sprite cho Laser (0-4)
+    private float laserFrameTimer = 0f;
+    private int currentLaserFrame = 0;
+    public float laserFrameRate = 0.05f; 
 
     void Start()
     {
@@ -58,6 +65,25 @@ public class PlayerShooting : MonoBehaviour
 
         if (Input.GetKey(KeyCode.K))
         {
+            if (activeBeam != null && beamLine != null)
+            {
+                // Animate texture offset and cycle sprites
+                float moveSpeed = 4f;
+                float offset = Time.time * moveSpeed;
+                beamLine.material.mainTextureOffset = new Vector2(-offset, 0);
+
+                if (laserSprites != null && laserSprites.Length > 0)
+                {
+                    laserFrameTimer += Time.deltaTime;
+                    if (laserFrameTimer >= laserFrameRate)
+                    {
+                        laserFrameTimer = 0f;
+                        currentLaserFrame = (currentLaserFrame + 1) % laserSprites.Length;
+                        beamLine.material.mainTexture = laserSprites[currentLaserFrame].texture;
+                    }
+                }
+            }
+
             if (weapons.Length > 0 && weapons[currentWeaponIndex].fireMode == FireMode.Beam)
             {
                 FireBeam();
@@ -77,7 +103,9 @@ public class PlayerShooting : MonoBehaviour
     {
         WeaponData currentWeapon = weapons[currentWeaponIndex];
         
-        if (anim != null) anim.SetTrigger("Shoot"); 
+        // Kích hoạt hoạt ảnh bắn skeleton cho súng điện
+        if (anim != null && !anim.GetCurrentAnimatorStateInfo(0).IsName("Shoot")) 
+            anim.Play("Shoot"); 
         
         if (activeBeam == null)
         {
@@ -125,8 +153,8 @@ public class PlayerShooting : MonoBehaviour
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(10, hit.point);
-                    enemy.TriggerElectricStun(2f); // Gây hiệu ứng điện giật (nhấp nháy cyan)
+                    enemy.TakeDamage(2, hit.point); // Giảm sát thương để thấy rõ hiệu ứng Stun
+                    enemy.TriggerElectricStun(0.15f); // Gây hiệu ứng điện giật (instant recovery)
                     if (currentWeapon.impactEffect != null)
                         Instantiate(currentWeapon.impactEffect, hit.point, Quaternion.identity);
                 }
@@ -169,9 +197,28 @@ public class PlayerShooting : MonoBehaviour
         if (weapons.Length > 0 && currentWeaponIndex < weapons.Length)
         {
             WeaponData current = weapons[currentWeaponIndex];
-            if (weaponUI != null && current.weaponIcon != null)
+            if (weaponUI != null)
             {
-                weaponUI.sprite = current.weaponIcon;
+                if (current.weaponIcon != null)
+                {
+                    // Tu dong tao Sprite moi chi lay phan sung (Crop)
+                    Texture2D tex = current.weaponIcon.texture;
+                    
+                    // Kiem tra hop le cua Rect
+                    float x = Mathf.Clamp(weaponCropRect.x, 0, tex.width);
+                    float y = Mathf.Clamp(weaponCropRect.y, 0, tex.height);
+                    float w = Mathf.Min(weaponCropRect.width, tex.width - x);
+                    float h = Mathf.Min(weaponCropRect.height, tex.height - y);
+                    
+                    Rect crop = new Rect(x, y, w, h);
+                    weaponUI.sprite  = Sprite.Create(tex, crop, new Vector2(0.5f, 0.5f));
+                    weaponUI.color   = Color.white;
+                    weaponUI.enabled = true;
+                }
+                else
+                {
+                    weaponUI.enabled = false;
+                }
             }
             if (anim != null && current.weaponAnimator != null)
             {

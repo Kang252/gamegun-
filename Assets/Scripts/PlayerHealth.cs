@@ -8,6 +8,7 @@ public class PlayerHealth : MonoBehaviour
     public float currentHealth;
 
     public Image healthBarFill; // Kéo cái Image màu xanh (Fill) vào đây
+    public GameObject hitEffectPrefab;
 
     void Start()
     {
@@ -20,6 +21,11 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthUI();
+
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        }
 
         if (currentHealth <= 0)
         {
@@ -46,10 +52,15 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Player Died!");
+        
+        Animator anim = GetComponent<Animator>();
+        if (anim != null) anim.SetTrigger("Death");
+
         // Báo cho GameManager để dừng game và hiện màn hình thua
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.GameOver();
+            // Thay vì dừng liền, ta gọi GameOver sau 1 khoảng nhỏ để xem hoạt ảnh
+            GameManager.Instance.Invoke("GameOver", 1.2f);
         }
     }
 }

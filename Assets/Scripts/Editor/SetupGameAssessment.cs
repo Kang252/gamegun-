@@ -189,7 +189,7 @@ public class SetupGameAssessment : EditorWindow
         }
         
         GameObject go = new GameObject(prefabName);
-        go.transform.localScale = new Vector3(scale, scale, 1f); // Gắn tỷ lệ kích thước do đạn to/nhỏ khác nhau
+        go.transform.localScale = new Vector3(1f, 1f, 1f); // Thống nhất kích thước đạn
         
         SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
         if (bulletSprite != null) sr.sprite = bulletSprite;
@@ -216,9 +216,18 @@ public class SetupGameAssessment : EditorWindow
             tr.sortingOrder = 15;
         }
 
-        Bullet bulletScript = go.AddComponent<Bullet>();
-        bulletScript.speed = speed;
-        bulletScript.damage = damage;
+        if (prefabName.Contains("Enemy_Bullet"))
+        {
+            EnemyBullet eb = go.AddComponent<EnemyBullet>();
+            eb.speed = speed;
+            eb.damage = (int)damage;
+        }
+        else
+        {
+            Bullet bulletScript = go.AddComponent<Bullet>();
+            bulletScript.speed = speed;
+            bulletScript.damage = (int)damage;
+        }
         
         if (!AssetDatabase.IsValidFolder("Assets/Prefabs"))
         {
@@ -256,7 +265,7 @@ public class SetupGameAssessment : EditorWindow
         }
 
         GameObject go = new GameObject(prefabName);
-        // go.tag = "Enemy"; // Bỏ gán Tag do Tag chưa được định nghĩa trong Edit > Project Settings > Tags, và mã nguồn Bullet.cs cũng không cần dùng tag này
+        go.transform.localScale = new Vector3(1.2f, 1.2f, 1f); // Thống nhất kích thước Enemy (giống Player)
         
         SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
         if (enemySprite != null) sr.sprite = enemySprite;
@@ -315,7 +324,7 @@ public class SetupGameAssessment : EditorWindow
         if (AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath) != null) AssetDatabase.DeleteAsset(controllerPath);
         AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
 
-        string[] states = { "Idle", "Walk", "Hit", "Death", "Get Hit" };
+        string[] states = { "Idle", "Walk", "Hit", "Death", "Get Hit", "Get Electric" };
 
         foreach(var state in states)
         {
@@ -332,7 +341,7 @@ public class SetupGameAssessment : EditorWindow
             AnimationClip clip = new AnimationClip();
             clip.frameRate = 12f;
             
-            if (state == "Idle" || state == "Walk")
+            if (state == "Idle" || state == "Walk" || state == "Get Electric")
             {
                 AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(clip);
                 settings.loopTime = true;

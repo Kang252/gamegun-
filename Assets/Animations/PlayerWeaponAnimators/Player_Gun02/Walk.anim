@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Walk
+  m_Name: 
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -59,31 +59,8 @@ AnimationClip:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
   m_ClipBindingConstant:
-    genericBindings:
-    - serializedVersion: 2
-      path: 0
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    pptrCurveMapping:
-    - {fileID: 8051780188957950043, guid: 3748d8c023e76c849b4cafbee80640c3, type: 3}
-    - {fileID: 5695823929769056846, guid: 3f355e3e2a12e88419cb5ff5e9478678, type: 3}
-    - {fileID: 8887006134180644394, guid: 26cd6251812e99540b2fdbdc1cafb19c, type: 3}
-    - {fileID: -5684395763846510631, guid: fddcb67c80206e54b82d78423f700e04, type: 3}
-    - {fileID: 1054974459868980372, guid: 7afaab0bd3f058b47a00d7ab50398049, type: 3}
-    - {fileID: -9153257304444426904, guid: 19bb6a7be4813ac47856837bc1cfe9df, type: 3}
-    - {fileID: 1834858180887452285, guid: 9256d55d9cbae444f983d2ece2301837, type: 3}
-    - {fileID: 1685589978077755936, guid: cd5e10a368e87a74a9271d8a15155d6d, type: 3}
-    - {fileID: 7909514532186419216, guid: 94ba29a22d2e6d649ab6624b7c73b485, type: 3}
-    - {fileID: -2901318747940082284, guid: 39814d7a3d1437b43952d34a3154b90f, type: 3}
-    - {fileID: 6646734700752008592, guid: 7e4afaa0e99a48d458ded4e010498348, type: 3}
-    - {fileID: -1058417239312587050, guid: 265cec5bfe9bffe4c83c449e19f50868, type: 3}
-    - {fileID: 407074151086075640, guid: 12065f7f1b74a4243b5c48e2c225e093, type: 3}
-    - {fileID: -4680606009761191602, guid: add7e96d68584c54ead5ffd7dafc92c2, type: 3}
+    genericBindings: []
+    pptrCurveMapping: []
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}

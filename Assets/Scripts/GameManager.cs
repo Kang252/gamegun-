@@ -1,31 +1,33 @@
 using UnityEngine;
-using TMPro; // Khai báo sử dụng thư viện TextMeshPro
-using UnityEngine.SceneManagement; // Dùng để Restart game
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     public int score = 0;
-    public TMP_Text scoreText; // Text hiện KILLS lúc chơi
-    
+
+    [Header("HUD")]
+    public Text scoreText; // Text hiện KILLS lúc chơi (Legacy Text)
+
     [Header("Game Over UI")]
-    public GameObject gameOverPanel; // Kéo thả cái Panel Game Over vào đây
-    public TMP_Text finalScoreText; // Text hiện điểm số cuối cùng
+    public GameObject gameOverPanel;
+    public Text finalScoreText;
+    public Text highScoreText;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-        
-        // Reset lại thời gian nếu game đang bị đứng
+
         Time.timeScale = 1f;
     }
 
     void Start()
     {
         UpdateScoreUI();
-        if (gameOverPanel != null) gameOverPanel.SetActive(false); // Giấu màn hình GameOver lúc đầu
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
     }
 
     public void AddScore(int amount)
@@ -39,21 +41,32 @@ public class GameManager : MonoBehaviour
         if (scoreText != null) scoreText.text = "KILLS: " + score;
     }
 
-    // Hàm gọi khi thua
     public void GameOver()
     {
-        Time.timeScale = 0f; // Dừng thời gian (Mọi thứ đứng im)
-        
+        Time.timeScale = 0f;
+
         if (gameOverPanel != null)
         {
-            gameOverPanel.SetActive(true); // Hiện bảng điểm
-            if (finalScoreText != null) finalScoreText.text = "SCORE: " + score;
+            // Đưa panel lên trên cùng rồi hiện
+            gameOverPanel.transform.SetAsLastSibling();
+            gameOverPanel.SetActive(true);
+
+            int currentHighscore = PlayerPrefs.GetInt("HighScore", 0);
+            if (score > currentHighscore)
+            {
+                currentHighscore = score;
+                PlayerPrefs.SetInt("HighScore", currentHighscore);
+                PlayerPrefs.Save();
+            }
+
+            if (finalScoreText != null)  finalScoreText.text  = "SCORE: " + score;
+            if (highScoreText != null)   highScoreText.text   = "HIGHSCORE: " + currentHighscore;
         }
     }
 
-    // Hàm gắn vào nút "PLAY AGAIN"
     public void RestartGame()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

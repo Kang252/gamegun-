@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6040078461013166850
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1493691223624398256, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_Name
+      value: Enemy_Bullet_B10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073946340152197142, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7980325889893799724, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 7980325889893799724, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 9156696771193952469, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 3883278846341608578, guid: 333e8c8de470fef4ba2e4736f90569d0, type: 3}
+    m_RemovedComponents:
+    - {fileID: 3452295111488904633, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1493691223624398256, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7018719762894325824}
+  m_SourcePrefab: {fileID: 100100000, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+--- !u!1 &5145365987837460146 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1493691223624398256, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
+  m_PrefabInstance: {fileID: 6040078461013166850}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-7018719762894325824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5145365987837460146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 725c504b3c5d9f84aa7e603fdec78972, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyBullet
+  speed: 15
+  damage: 10
+  impactEffect: {fileID: 0}

@@ -62,7 +62,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1747935641044351509}
@@ -157,7 +157,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -236,13 +236,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   health: 20
   moveSpeed: 2
+  attackDamage: 10
   scoreValue: 1
   type: 3
   stopDistance: 5
-  enemyBulletPrefab: {fileID: 1493691223624398256, guid: 54f632e4e858b4a4a91bc10fdc3c4444, type: 3}
-  muzzleFlashPrefab: {fileID: 3016085372199729693, guid: a72aba0d82802894a9e694852f77402e, type: 3}
+  attackRange: 2.5
+  enemyBulletPrefab: {fileID: 4774120716785238343, guid: 79d0b570725645d4a9f87bff510b2cae, type: 3}
+  muzzleFlashPrefab: {fileID: 1787586051498191960, guid: 6d9fbf5cca04f3e4e96558510c9e6577, type: 3}
   firePoint: {fileID: 1747935641044351509}
   fireRate: 2
-  healthPickupPrefab: {fileID: 0}
-  dropChance: 0.5
+  healthPickupPrefabs:
+  - {fileID: 2893368498626132196, guid: 15892178c70d3664c8bd3848a4efb653, type: 3}
+  - {fileID: 1764749085010483579, guid: 8f7f541cca6c45a4ba034b0507d68daa, type: 3}
+  - {fileID: 4906815124563332302, guid: 89618dd3014d59a4a8af6e04e1dbb5f7, type: 3}
+  dropChance: 0.2
   deathEffect: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
